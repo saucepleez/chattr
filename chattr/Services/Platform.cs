@@ -37,6 +37,26 @@ namespace chattr.Services
             helpFAQ.AddResponse("This is a sample use case -- you can ask me what chattr is. I also understand various hello/goodbye phrases.");
             botConfig.FAQs.Add(helpFAQ);
 
+            var gitFAQ = new Models.FAQ();
+            gitFAQ.Name = "gitSample";
+            gitFAQ.AddUtterance("what is github");
+            gitFAQ.AddUtterance("whats github");
+            gitFAQ.AddUtterance("define github");
+            gitFAQ.AddUtterance("github");
+            gitFAQ.AddUtterance("tell me about github");
+            gitFAQ.AddResponse("GitHub brings together the world's largest community of developers to discover, share, and build better software.");
+            botConfig.FAQs.Add(gitFAQ);
+
+            var stackFAQ = new Models.FAQ();
+            stackFAQ.Name = "stackFAQ";
+            stackFAQ.AddUtterance("tell me about the stack");
+            stackFAQ.AddUtterance("what software stack is this");
+            stackFAQ.AddUtterance("what is running this");
+            stackFAQ.AddUtterance("what powers this application");
+            stackFAQ.AddUtterance("what is powering this app");
+            stackFAQ.AddResponse("This application is powered by C# -- ML.NET and Blazor!");
+            botConfig.FAQs.Add(stackFAQ);
+
             //create greeting FAQ
             var greetingFAQ = new Models.FAQ();
             greetingFAQ.Name = "greetingSample";
