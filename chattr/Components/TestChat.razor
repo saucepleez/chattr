@@ -33,7 +33,7 @@
     string responseLabel { get; set; }
     string aiResult { get; set; }
     Models.AIOutput mlResult { get; set; }
-    Models.FAQ testResponse { get; set; }
+    Models.Tasks.Conversation testResponse { get; set; }
     [Parameter]
     public Models.BotConfig botConfig { get; set; }
     public void ScoreData()

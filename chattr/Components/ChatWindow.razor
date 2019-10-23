@@ -137,8 +137,16 @@
     private List<Models.SessionMessage> SessionMessages { get; set; } = new List<Models.SessionMessage>();
     protected override void OnInitialized()
     {
+
         var text = System.IO.File.ReadAllText(fileName);
-        config = System.Text.Json.JsonSerializer.Deserialize<Models.BotConfig>(text);
+
+        Newtonsoft.Json.JsonSerializerSettings settings = new Newtonsoft.Json.JsonSerializerSettings()
+            {
+                TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto
+            };
+
+
+        config = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.BotConfig>(text, settings);
         SessionMessages.Add(new Models.SessionMessage() { MessageContent = config.BotGreeting, Type = Models.SessionMessage.MessageType.BotMessage });
     }
 

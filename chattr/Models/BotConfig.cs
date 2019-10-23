@@ -1,4 +1,5 @@
-﻿using System;
+﻿using chattr.Models.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,12 +11,12 @@ namespace chattr.Models
         public string BotName { get; set; }
         public string ModelFile { get; set; }
         public string BotGreeting { get; set; }
-        public List<FAQ> FAQs { get; set; } = new List<FAQ>();
-
-        public FAQ FindFAQResponse(string conversationGuid)
+        public bool UnsupervisedLearning { get; set; }
+        public List<Conversation> Conversations { get; set; } = new List<Conversation>();
+        public Conversation FindFAQResponse(string conversationGuid)
         {
             var guid = Guid.Parse(conversationGuid);
-            var faq = FAQs.Where(f => f.ID == guid).FirstOrDefault();
+            var faq = Conversations.Where(f => f.ID == guid).FirstOrDefault();
 
             if (faq != null)
             {
@@ -28,9 +29,20 @@ namespace chattr.Models
 
 
         }
+
+        public void AddConversation(Conversation newConversation)
+        {
+            Conversations.Add(newConversation);
+        }
         public void Save()
         {
-            var serializedConfig = System.Text.Json.JsonSerializer.Serialize(this);
+            //need to use newtonsoft when serializing derived types
+            Newtonsoft.Json.JsonSerializerSettings settings = new Newtonsoft.Json.JsonSerializerSettings()
+            {
+                TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto
+            };
+
+            var serializedConfig = Newtonsoft.Json.JsonConvert.SerializeObject(this, settings);
             System.IO.File.WriteAllText($"Bots\\Configs\\{this.BotName}.json", serializedConfig);
         }
     }

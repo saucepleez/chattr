@@ -23,7 +23,34 @@ namespace chattr.Services
 
             //create dataset from configuration
             var dataset = new List<AIInput>();
-            foreach (var conversation in config.FAQs)
+
+            ////create FAQ inputs
+            //foreach (var conversation in config.FAQs)
+            //{
+            //    foreach (var utterance in conversation.StartNode.Utterances)
+            //    {
+            //        //add utterance
+            //        dataset.Add(new AIInput() { Utterance = utterance.Statement.ToLower(), Label = conversation.ID.ToString() });
+
+            //        //add/replace synonyms
+            //        foreach (var synonym in conversation.StartNode.Synonyms)
+            //        {
+            //            if (utterance.Statement.ToLower().Contains(synonym.FAQWord.ToLower()))
+            //            {
+            //                var replacedPhrase = utterance.Statement.Replace(synonym.FAQWord.ToLower(), synonym.SynonymWord.ToLower());
+            //                dataset.Add(new AIInput() { Utterance = replacedPhrase, Label = conversation.ID.ToString() });
+            //            }
+            //        }
+
+                   
+            //    }
+
+
+
+            //}
+
+            //create custom conversation inputs
+            foreach (var conversation in config.Conversations)
             {
                 foreach (var utterance in conversation.StartNode.Utterances)
                 {
@@ -40,10 +67,8 @@ namespace chattr.Services
                         }
                     }
 
-                   
+
                 }
-
-
 
             }
 
@@ -81,13 +106,13 @@ namespace chattr.Services
         public AIOutput Predict(BotConfig config, string utterance)
         {
             //attempt to find any exact matches before going to ml
-            foreach (var faqConversation in config.FAQs)
+            foreach (var conversation in config.Conversations)
             {
-                foreach (var configuredUtterance in faqConversation.StartNode.Utterances)
+                foreach (var configuredUtterance in conversation.StartNode.Utterances)
                 {
                     if (configuredUtterance.Statement.ToLower() == utterance.ToLower())
                     {
-                        return new AIOutput() { Prediction = faqConversation.ID.ToString(), ExactMatch = true, Score = new float[] { 1 } };
+                        return new AIOutput() { Prediction = conversation.ID.ToString(), ExactMatch = true, Score = new float[] { 1 } };
                     }    
 
                 }
