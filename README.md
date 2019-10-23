@@ -12,6 +12,8 @@ chattr is an easy-to-use chatbot service platform which enables everyone to buil
 - Once created, the bot will be automatically shown on the home page which you can conversate with -- please note the vocabulary and samples are limited, see the **Testing** section below for more info
 
 ## Testing
+Currently, this demo is limited as it supports a single bot and only supports FAQ-style conversations (Simple Question and Response).
+
 Once project is debugging, you can ask the bot some statements that have been created such as "What is this platform?".  Note that due to the machine learning you can also make grammatical mistakes such as "What izz this plattform?" and the bot will still attempt to identify the best match. Additional trained FAQs in the sample are "What powers you"/"What is the stack" and "what is github". You can also greet the bot multiple times with "Hi", "Hiya", "Hey", "Heya" or similar and it will return one of multiple replies.
 
 You may also load the editor page which allows you to customize frequently asked questions (with custom conversations coming soon!) as well as view the sample ones that were created.  If you decide to make any changes, press the "Save" button then "Train" to train the bot on your changes.  Lastly you can navigate back to the Home screen to chat with your newly trained version.
