@@ -1,0 +1,21 @@
+﻿@inject IModalService ModalService
+<style>
+    #parent {
+    text-align:center;
+    height:450px;
+    width:100%;
+}
+</style>
+    <div id="parent">
+        <h3 class="display-4">Training Complete</h3>
+        <img src="img/grad-cap.jpg" width="200" height="200" />
+        <p>Feel free to test out your bot and see if it replies correctly to your questions.</p>
+        <button @onclick="@Close" class="btn btn-primary">Close</button>
+    </div>
+
+@code {
+    private void Close()
+    {
+        ModalService.Cancel();
+    }
+}

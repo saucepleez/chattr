@@ -1,0 +1,203 @@
+﻿@page "/edit"
+@inject IModalService Modal
+@using chattr.Components;
+
+<style>
+    .margin-top-standard {
+        margin-top: 5px;
+    }
+
+    .margin-all {
+        margin: 10px 10px 10px 10px;
+    }
+</style>
+
+<h1>Editing Bot '@config.BotName'.</h1>
+<h4>There are currently @config.FAQs.Count configured FAQs.</h4>
+
+<div class="form-group">
+    <label for="botName">Bot Name</label>
+    <input id="botName" type="text" class="form-control" @bind="@config.BotName" placeholder="Enter Bot Name" />
+</div>
+
+<div class="form-group">
+    <label for="botGreeting">Bot Greeting</label>
+    <input id="botGreeting" type="text" class="form-control" @bind="@config.BotGreeting" placeholder="Enter Bot Greeting" />
+</div>
+
+<div class="form-group">
+    <label for="modelFile">Model File</label>
+    <input id="modelFile" type="text" class="form-control" @bind="@config.ModelFile" placeholder="Enter Bot Model or Train" />
+</div>
+
+
+
+
+
+<hr />
+
+<button @onclick="ShowFAQ" class="btn btn-primary margin-all">@showFAQLabel</button> >
+<button @onclick="SaveConfig" class="btn btn-primary margin-all" >Save</button> >
+<button @onclick="TrainModel" class="btn btn-primary margin-all">Train</button> >
+<button @onclick="TestChat" class="btn btn-primary margin-all">Test</button>
+
+@if (testChat)
+{
+    <TestChat botConfig="config" />
+}
+
+@if (showFAQ)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">FAQ Name</th>
+                <th scope="col">When someone says...</th>
+                <th scope="col">The bot should reply with...</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var faq in config.FAQs)
+            {
+                <tr>
+                    <th scope="row">
+                        <div class="input-group margin-top-standard"><input type="text" class="form-control" placeholder="Enter FAQ Name" @bind="@faq.Name" /><button class="btn btn-danger btn-sm input-group-append" @onclick="() => DeleteFAQ(faq.ID)">-</button></div>
+
+                        @if (faq.StartNode.Synonyms.Count > 0)
+                        {
+                            <p class="margin-top-standard">Synonyms</p>
+                            @foreach (var synonym in faq.StartNode.Synonyms)
+                            {
+                                <div class="input-group margin-top-standard">
+                                    <input type="text" class="form-control" @bind="@synonym.FAQWord" placeholder="Enter FAQ Word" style="width:10%" /> <small>also means</small>
+                                    <input type="text" class="form-control" @bind="@synonym.SynonymWord" placeholder="Enter Synonym" style="width:10%" />
+                                    <button class="btn btn-danger btn-sm input-group-append" @onclick="() => DeleteSynonym(faq.ID, synonym.ID)">-</button>
+                                </div>
+                            }
+                        }
+
+                        <button class="btn btn-primary btn-sm margin-top-standard" @onclick="() => AddSynonym(faq.ID)">+ Synonym</button>
+                    </th>
+                    <td>
+                        @foreach (var utterance in faq.StartNode.Utterances)
+                        {
+                            <div class="input-group margin-top-standard"><input type="text" class="form-control" @bind="@utterance.Statement" placeholder="Enter Statement" style="width:50%" /><button class="btn btn-danger btn-sm input-group-append" @onclick="() => DeleteUtterance(faq.ID, utterance.ID)">-</button></div>
+                        }
+                        <button class="btn btn-primary btn-sm margin-top-standard" @onclick="() => AddUtterance(faq.ID)">+ Statement</button>
+                    </td>
+                    <td>
+                        @foreach (var response in faq.ReplyNode.Responses)
+                        {
+                            <div class="input-group margin-top-standard"><input type="text" class="form-control" @bind="@response.Statement" placeholder="Enter Response" style="width:50%" /><button class="btn btn-danger btn-sm input-group-append" @onclick="() => DeleteResponse(faq.ID, response.ID)">-</button></div>
+                        }
+                        <button class="btn btn-primary btn-sm margin-top-standard" @onclick="() => AddResponse(faq.ID)">+ Response</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button class="btn btn-primary" @onclick="AddFAQ">+ FAQ</button>
+
+}
+
+
+
+
+
+
+@code {
+    private bool showFAQ { get; set; } = false;
+    private bool testChat { get; set; } = false;
+    private string showFAQLabel { get; set; } = "Show FAQ Editor";
+    string fileName { get; set; } = "Bots//Configs//Platform Test Bot.json";
+    Models.BotConfig config { get; set; }
+    protected override void OnInitialized()
+    {
+
+        var text = System.IO.File.ReadAllText(fileName);
+        config = System.Text.Json.JsonSerializer.Deserialize<Models.BotConfig>(text);
+
+    }
+    private void ShowFAQ()
+    {
+        showFAQ = !showFAQ;
+
+        if (showFAQ)
+        {
+            showFAQLabel = "Hide FAQ Editor";
+        }
+        else
+        {
+            showFAQLabel = "Show FAQ Editor";
+        }
+    }
+
+    private void AddFAQ()
+    {
+        var newFAQ = new Models.FAQ();
+        newFAQ.Name = $"newFAQ{DateTime.Now.ToString("MMddyy.hhmmss")}";
+        newFAQ.AddUtterance("");
+        newFAQ.AddResponse("");
+        config.FAQs.Add(newFAQ);
+    }
+
+    private void DeleteFAQ(Guid faqId)
+    {
+        config.FAQs.RemoveAll(f => f.ID == faqId);
+    }
+
+    private void DeleteUtterance(Guid faqId, Guid utteranceID)
+    {
+        var faq = config.FAQs.Where(f => f.ID == faqId).FirstOrDefault();
+        faq.StartNode.Utterances.RemoveAll(f => f.ID == utteranceID);
+    }
+
+    private void DeleteResponse(Guid faqId, Guid responseID)
+    {
+        var faq = config.FAQs.Where(f => f.ID == faqId).FirstOrDefault();
+        faq.ReplyNode.Responses.RemoveAll(f => f.ID == responseID);
+    }
+
+    private void AddUtterance(Guid faqId)
+    {
+        var faq = config.FAQs.Where(f => f.ID == faqId).FirstOrDefault();
+        faq.AddUtterance("");
+    }
+    private void AddSynonym(Guid faqId)
+    {
+        var faq = config.FAQs.Where(f => f.ID == faqId).FirstOrDefault();
+        faq.AddSynonym("", "");
+    }
+    private void DeleteSynonym(Guid faqId, Guid synonymID)
+    {
+        var faq = config.FAQs.Where(f => f.ID == faqId).FirstOrDefault();
+        faq.StartNode.Synonyms.RemoveAll(f => f.ID == synonymID);
+    }
+    private void AddResponse(Guid faqId)
+    {
+        var faq = config.FAQs.Where(f => f.ID == faqId).FirstOrDefault();
+        faq.AddResponse("");
+    }
+
+    private void SaveConfig()
+    {
+        config.Save();
+        Modal.Show("Saved!", typeof(Components.Modals.SaveComplete));
+    }
+
+    private void TrainModel()
+    {
+        var trainingResult = chattr.Services.Platform.AIService.Train(config);
+        config.ModelFile = trainingResult;
+        config.Save();
+        Modal.Show("Great News!", typeof(Components.Modals.TrainingComplete));
+    }
+
+    private void TestChat()
+    {
+        testChat = !testChat;
+    }
+
+
+}

@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29411.108
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "chattr", "chattr\chattr.csproj", "{0C12320F-A764-47D3-877D-B02956BB305D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0C12320F-A764-47D3-877D-B02956BB305D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C12320F-A764-47D3-877D-B02956BB305D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C12320F-A764-47D3-877D-B02956BB305D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C12320F-A764-47D3-877D-B02956BB305D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0E3356FE-108E-43A4-9342-F5D16EE32DD9}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,164 @@
+﻿@inject IJSRuntime JSRuntime;
+<style type="text/css">
+    .chat-window {
+        max-width: 800px;
+    }
+
+    .chat-header {
+        height: 50px;
+        background-color: #343a40;
+        font-family: 'Oswald', sans-serif !important;
+        font-size: 28px;
+        color: white;
+        border-radius: 30px 30px 0px 0px;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 50px;
+    }
+    .bot-header {
+        padding-top:2px;
+        height: 20px;
+        background-color: #343a40;
+        font-family: 'Oswald', sans-serif !important;
+        font-size: 11px;
+        color: white;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .chat-area {
+        height: 400px;
+        background-color: #f8f9fa;
+        padding: 10px 10px 10px 10px;
+        overflow-x: hidden;
+        overflow-x: auto;
+    }
+
+    .chat-list {
+        padding: 0;
+        width: 100%;
+        list-style-type: none;
+    }
+
+    .chat-input {
+        min-height: 80px;
+        background-color: #e9ecef;
+        padding: 5px 5px 5px 5px;
+    }
+
+    .message {
+        width: 100%;
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+
+    .user-datestamp {
+        font-size: 12px;
+        width: 100%;
+        text-align: right;
+    }
+
+    .bot-datestamp {
+        font-size: 12px;
+        width: 100%;
+        text-align: left;
+    }
+
+    .user-message-container {
+        float: right;
+        background-color: #17a2b8;
+        border-radius: 12px;
+        border-bottom-right-radius: 2px;
+        position: relative;
+        display: inline-block;
+        word-wrap: break-word;
+        font-size: 16px;
+        color: white;
+        padding: 15px 15px 15px 15px;
+        max-width: 90%
+    }
+
+    .bot-message-container {
+        float: left;
+        background-color: #fd7e14;
+        border-radius: 12px;
+        border-bottom-left-radius: 2px;
+        position: relative;
+        display: inline-block;
+        word-wrap: break-word;
+        font-size: 16px;
+        color: white;
+        padding: 15px 15px 15px 15px;
+        max-width: 90%
+    }
+</style>
+
+
+<div class="chat-window">
+    <div class="chat-header">chattr</div>
+    <div class="bot-header">Now speaking with '@config.BotName'</div>
+    <div class="chat-area" id="ChatBody">
+        <ul class="chat-list">
+            @foreach (var msg in SessionMessages)
+            {
+                <li class="message">
+                    @if (msg.Type == chattr.Models.SessionMessage.MessageType.UserMessage)
+                    {
+                        <div class="user-datestamp">@msg.DateStamp</div>
+                        <div class="user-message-container"><div class="message-body">@msg.MessageContent</div></div>
+                    }
+                    else
+                    {
+                        <div class="bot-datestamp">@msg.DateStamp</div>
+                        <div class="bot-message-container"><div class="message-body">@msg.MessageContent</div></div>
+                    }
+                </li>
+            }
+
+        </ul>
+    </div>
+    <div class="chat-input">
+        <div class="form-group">
+            <small for="inputBox">Enter a message</small>
+            <div class="input-group">
+                <input type="text" id="inputBox" class="form-control" placeholder="Enter Message" @bind="UserMessage" @onkeyup="(e) => KeyUp(e)" /><button class="btn btn-primary" @onclick="ProcessMessage">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [Parameter]
+    public string fileName { get; set; }
+    public chattr.Models.BotConfig config { get; set; }
+    public Guid SessionID { get; set; } = Guid.NewGuid();
+    private string UserMessage { get; set; }
+    private List<Models.SessionMessage> SessionMessages { get; set; } = new List<Models.SessionMessage>();
+    protected override void OnInitialized()
+    {
+        var text = System.IO.File.ReadAllText(fileName);
+        config = System.Text.Json.JsonSerializer.Deserialize<Models.BotConfig>(text);
+        SessionMessages.Add(new Models.SessionMessage() { MessageContent = config.BotGreeting, Type = Models.SessionMessage.MessageType.BotMessage });
+    }
+
+    private void ProcessMessage()
+    {
+        SessionMessages.Add(new Models.SessionMessage() { MessageContent = UserMessage, Type = Models.SessionMessage.MessageType.UserMessage });
+        chattr.Services.Platform.ChatEngine.ProcessChat(config, SessionID, UserMessage, SessionMessages);
+        UserMessage = string.Empty;
+        //todo implement scrollchat callback
+    }
+    private void KeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            ProcessMessage();
+
+   
+    }
+    private async void ScrollChat()
+    {
+        await JSRuntime.InvokeAsync<string>("scrollChat");
+    }
+
+}

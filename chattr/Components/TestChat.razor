@@ -1,0 +1,50 @@
+﻿    <div class="card default-card-size">
+        <div class="card-body">
+            <div><b>You can type phrases matching or similar to the ones you have configured via FAQ editor.  The platform will try an exact match or fall back to AI for intent recognition.</b></div>
+            <input type="text" @bind="inputString" />
+            <button class="btn btn-primary" @onclick="ScoreData">Send</button>
+        </div>
+    </div>
+
+
+    <br />
+    
+   @if (!string.IsNullOrEmpty(userStatement))
+    {
+        <hr />
+        <h3>@userStatement</h3>
+        <h3>@responseLabel</h3>
+        <small>Statements: @string.Join(", ", testResponse.StartNode.Utterances.Select(f => f.Statement))</small>
+        <small>Responses: @string.Join(", ", testResponse.ReplyNode.Responses.Select(f => f.Statement))</small>
+        <hr />
+
+        <h4>@aiResult</h4>
+        <div>Exact Match Found: @mlResult.ExactMatch</div>
+        <hr />
+    }
+
+
+
+
+
+@code {
+    string userStatement { get; set; }
+    string inputString { get; set; }
+    string responseLabel { get; set; }
+    string aiResult { get; set; }
+    Models.AIOutput mlResult { get; set; }
+    Models.FAQ testResponse { get; set; }
+    [Parameter]
+    public Models.BotConfig botConfig { get; set; }
+    public void ScoreData()
+    {
+        mlResult = Services.Platform.AIService.Predict(botConfig, inputString);
+        testResponse = botConfig.FindFAQResponse(mlResult.Prediction);
+        userStatement = $"Your Statement: {inputString}";
+        responseLabel = $"Bot Response: {testResponse.ReplyNode.Responses.FirstOrDefault().Statement}";
+        aiResult = $"Prediction: {mlResult.Prediction}, Exact Match: {mlResult.ExactMatch}, Confidences: {string.Join(", ", mlResult.Score)}";
+
+    }
+
+
+}
